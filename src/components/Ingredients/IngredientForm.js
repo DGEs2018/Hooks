@@ -20,9 +20,17 @@ const IngredientForm = React.memo((props) => {
 							type="text"
 							id="title"
 							value={inputState[0].title}
-							onChange={(event) =>
-								inputState[1]({ title: event.target.value, amount: inputState[0].amount })}
+							onChange={(event) => {
+								const newTitle = event.target.value; // a workaround for the problem caused by the closure
+								inputState[1]((previousInputState) => ({
+									title: newTitle,
+									amount: previousInputState.amount
+								}));
+							}}
+
+							// error will now be caused because of nesting the event is a closure, meaning it's locked inside the callback function
 						/>
+						{/* // not 100% correct way, due to the reason react updates state, // in more complex and bigger apps where the latest state might have not been committed yet */}
 					</div>
 					<div className="form-control">
 						<label htmlFor="amount">Amount</label>
@@ -30,8 +38,13 @@ const IngredientForm = React.memo((props) => {
 							type="number"
 							id="amount"
 							value={inputState[0].amount}
-							onChange={(event) =>
-								inputState[1]({ amount: event.target.value, title: inputState[0].title })}
+							onChange={(event) => {
+								const newAmount = event.target.value;
+								inputState[1]((previousInputState) => ({
+									amount: newAmount,
+									title: previousInputState.title
+								}));
+							}}
 						/>
 					</div>
 					<div className="ingredient-form__actions">
